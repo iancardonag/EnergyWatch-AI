@@ -1,0 +1,30 @@
+aparato,potencia_min_w,potencia_max_w,potencia_tipica_w,zona
+Horno eléctrico,1500.0,3000.0,2250.0,cocina
+Microondas,700.0,1500.0,1100.0,cocina
+Freidora de aire (airfryer),1200.0,1800.0,1500.0,cocina
+Licuadora,300.0,700.0,500.0,cocina
+Cafetera eléctrica,600.0,1200.0,900.0,cocina
+Hervidor eléctrico,1500.0,2200.0,1850.0,cocina
+Tostadora / sandwichera,700.0,1200.0,950.0,cocina
+Arrocera eléctrica,300.0,700.0,500.0,cocina
+Lavavajillas,1200.0,2400.0,1800.0,cocina
+Estufa eléctrica o de inducción (por hornilla),1200.0,2500.0,1850.0,cocina
+Lavadora,300.0,1000.0,650.0,lavanderia
+Secadora de ropa,1800.0,3000.0,2400.0,lavanderia
+Nevera (compresor encendido),100.0,250.0,175.0,lavanderia
+Bombillo LED,5.0,15.0,10.0,lavanderia
+Bombillo incandescente,40.0,100.0,70.0,lavanderia
+Ducha eléctrica,3500.0,5500.0,4500.0,agua_aire
+Calentador de agua de acumulación,1500.0,3000.0,2250.0,agua_aire
+Aire acondicionado,1000.0,3500.0,2250.0,agua_aire
+Televisor,50.0,150.0,100.0,otros
+Computador de escritorio,100.0,300.0,200.0,otros
+Computador portátil,30.0,70.0,50.0,otros
+Router / módem de internet,8.0,15.0,11.5,otros
+Ventilador,40.0,100.0,70.0,otros
+Plancha de ropa,1000.0,2000.0,1500.0,otros
+Aspiradora,800.0,1800.0,1300.0,otros
+Secador de cabello,1000.0,2000.0,1500.0,otros
+Consola de videojuegos,100.0,200.0,150.0,otros
+Equipo de sonido,20.0,100.0,60.0,otros
+Cargador de celular (cargando),2.0,5.0,3.5,otros

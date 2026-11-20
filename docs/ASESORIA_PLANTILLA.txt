@@ -1,0 +1,29 @@
+Grupo [NÚMERO] - Actividad 3 - Asesoría de Avances
+URL Repositorio: [URL PÚBLICA REAL DE GITHUB]
+Algoritmo: DBSCAN
+Problema: Detectar si el consumo eléctrico de un hogar colombiano es habitual o atípico, con consejos de ahorro
+Dataset: UCI Individual Household Electric Power Consumption (2.075.259 mediciones por minuto; 68.304 ventanas de 30 min; 7 variables)
+
+Estado del Modelo:
+- Modelo entrenado: SÍ
+- Archivo: models/modelo.joblib (~200 KB, subido al repositorio) + models/metadata.json
+- Validación: división cronológica 80/20 (entrena con el pasado, evalúa con el futuro)
+- Parámetros: eps = 1.1, min_samples = 15
+- Silhouette (sin ruido): 0.573 entrenamiento / 0.618 prueba (mínimo exigido: 0.4)
+- Ruido: 5.1% entrenamiento / 2.9% prueba
+- N.º de clústeres: 2
+- Notebook: notebooks/01_training.ipynb (ejecutado, con EDA, entrenamiento y evaluación)
+
+Estado de la Aplicación:
+- Framework: Streamlit
+- Estado: Funcionando localmente (capturas adjuntas en el repositorio: docs/capturas/)
+- Funciones: elegir electrodomésticos colombianos o ingresar vatios, semáforo con explicación, costo en COP,
+  consejos, historial en SQLite con descarga CSV, demostración con datos reales
+- Pruebas automáticas: 13 pruebas con pytest
+- Falta: desplegar en la nube y completar presentación
+
+Despliegue Planificado:
+- Servicio: Streamlit Community Cloud (gratuito, integrado con GitHub)
+- Plan: 1) repositorio público con modelo y requirements.txt fijados; 2) conectar el repo en share.streamlit.io
+  con archivo app/app.py y Python 3.12; 3) probar la URL desde computador y móvil; 4) capturas y video de respaldo
+- Fecha estimada: [FECHA]

@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+.ipynb_checkpoints/
+.DS_Store
+*.log
+# Raw data is 126MB; download from UCI in training step
+/data/raw/*
+!/data/raw/.gitkeep
+# data/processed contiene replay_test.csv (pequeño, ~250 KB) que la app necesita para sus ejemplos
+# Historial local del usuario (SQLite)
+/data/*.db
+# Modelo (~200 KB) y metadatos SI se versionan: la app desplegada los necesita
