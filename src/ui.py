@@ -42,11 +42,6 @@ html, body, [class*="css"], .stApp {{ font-family: 'Instrument Sans', sans-serif
 header[data-testid="stHeader"] {{ background: transparent; }}
 .block-container {{ max-width: 1120px; padding: 3.6rem 1.4rem 4rem; }}
 h1, h2, h3, h4 {{ font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-spacing: -.01em; color: {INK}; }}
-[data-testid="stTabs"] [role="tablist"] {{ gap: .35rem; border-bottom: 2px solid {INK}; }}
-[data-testid="stTabs"] button[role="tab"] {{ padding: .55rem 1.1rem !important; color: {MUTED}; font-weight: 500; border: 1.5px solid transparent;
-  border-bottom: none; border-radius: 8px 8px 0 0; margin-bottom: -2px; }}
-[data-testid="stTabs"] button[aria-selected="true"] {{ color: {INK}; background: {CARD}; border-color: {INK}; border-bottom: 2px solid {CARD}; }}
-[data-testid="stTabs"] [data-baseweb="tab-highlight"], [data-testid="stTabs"] [data-baseweb="tab-border"] {{ display: none; }}
 .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {{
   border-radius: 3px; border: 1.5px solid {INK}; background: {CARD}; color: {INK}; font-weight: 600; box-shadow: 3px 3px 0 {LINE}; }}
 .stButton > button[kind="primary"], .stFormSubmitButton > button[kind="primary"] {{
@@ -60,7 +55,6 @@ h1, h2, h3, h4 {{ font-family: 'Fraunces', Georgia, serif; font-weight: 600; let
 .ew-title em {{ color: {ACCENT}; font-weight: 500; }}
 .ew-sub {{ color: {MUTED}; margin-bottom: 1.4rem; max-width: 620px; font-size: 1.05rem; }}
 .ew-kicker {{ font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .14em; color: {MUTED}; text-transform: uppercase; }}
-[data-testid="stColumn"]:has(.ew-plate) {{ position: sticky; top: 3.4rem; align-self: flex-start; }}
 .ew-plate {{ background: {CARD}; border: 1.5px solid {INK}; border-radius: 3px; box-shadow: 5px 5px 0 {LINE}; padding: 1rem 1.1rem .6rem; }}
 .ew-card {{ background: {CARD}; border: 1.5px solid {INK}; border-radius: 3px; box-shadow: 5px 5px 0 var(--st); padding: 1.3rem 1.5rem 1.2rem; margin: 1rem 0 1.4rem; }}
 .ew-row {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .6rem; }}
@@ -83,8 +77,38 @@ h1, h2, h3, h4 {{ font-family: 'Fraunces', Georgia, serif; font-weight: 600; let
 .ew-step .n {{ font-family: 'Fraunces', serif; font-style: italic; color: {ACCENT}; font-size: 1.5rem; }}
 .ew-step h4 {{ margin: .1rem 0 .3rem; }}
 .ew-step p {{ color: {MUTED}; font-size: .95rem; }}
+.ew-nav {{ display: flex; gap: 1.4rem; flex-wrap: wrap; margin: .2rem 0 1.2rem; font-family: 'DM Mono', monospace; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; }}
+.ew-nav a {{ color: {INK}; text-decoration: none; border-bottom: 2px solid {ACCENT}; padding-bottom: 2px; }}
+.ew-section {{ margin: 3.2rem 0 1rem; padding-top: 1rem; border-top: 3px solid {INK}; }}
+.ew-section h2 {{ font-size: 2rem; margin: .1rem 0 .3rem; }}
+.ew-section p {{ color: {MUTED}; max-width: 640px; }}
+.ew-meterbox {{ display: flex; gap: 1rem; align-items: center; }}
+.ew-meterbox .meter {{ width: 128px; flex: none; }}
+.ew-live {{ font-family: 'Fraunces', serif; font-size: 2.4rem; font-weight: 600; line-height: 1; }}
+.ew-live span {{ font-family: 'DM Mono', monospace; font-size: .9rem; color: {MUTED}; }}
+.st-key-medidor {{ background: {CARD}; border: 1.5px solid {INK}; box-shadow: 5px 5px 0 {LINE}; border-radius: 3px; padding: 1rem 1.1rem; }}
+.st-key-casa {{ border: 3px solid {INK}; background: {CARD}; gap: 0 !important; }}
+.st-key-casa [data-testid="stHorizontalBlock"] {{ gap: 0 !important; }}
+.st-key-casa [data-testid="stHorizontalBlock"] {{ align-items: stretch; }}
+.st-key-casa [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{ height: 100%; }}
+.st-key-casa [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] {{ flex: 1 1 auto; height: 100%; }}
+div[class*="st-key-room_"] {{ height: 100%; border: 1.5px solid {INK}; padding: .9rem 1rem 1rem; gap: .5rem !important; background-color: {CARD}; }}
+.ew-roomhead {{ display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; }}
+.ew-roomhead .nm {{ font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .14em; color: {MUTED}; text-transform: uppercase; }}
+.ew-roomhead .w {{ font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 600; }}
+.ew-roomhead .w.on {{ color: {ACCENT}; }}
+.roomsvg {{ width: 100%; max-height: 118px; display: block; margin: .2rem 0 .4rem; }}
+.roof {{ width: 100%; height: auto; display: block; margin-bottom: -4px; }}
+.ew-ground {{ height: 22px; border-top: 3px solid {INK}; background: repeating-linear-gradient(135deg, rgba(30,25,21,.35) 0 1px, transparent 1px 8px); }}
+.ew-appname {{ padding-top: 1.55rem; line-height: 1.25; font-size: .92rem; }}
+.ew-rowhint {{ font-family: 'DM Mono', monospace; font-size: .66rem; letter-spacing: .1em; color: {MUTED}; text-transform: uppercase; }}
+[data-testid="stPills"] button {{ border: 1.5px solid {INK}; border-radius: 3px; background: {PAPER}; color: {INK}; font-size: .85rem; }}
+[data-testid="stPills"] button[aria-checked="true"], [data-testid="stPills"] button[kind="pillsActive"] {{ background: {ACCENT}; color: #fff; border-color: {INK}; }}
 {SVG_CSS}
+@media (min-width: 900px) {{ div[class*="st-key-room_"] {{ min-height: 430px; }} }}
 @media (max-width: 640px) {{
+  .st-key-casa [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap; }}
+  .st-key-casa [data-testid="stColumn"] {{ min-width: 100% !important; }}
   .ew-big {{ font-size: 2.6rem; }} .ew-title {{ font-size: 2rem; }} .ew-stats {{ grid-template-columns: 1fr; gap: .6rem; }}
   .block-container {{ padding: 1.4rem .9rem 3rem; }}
 }}
@@ -96,9 +120,49 @@ def header():
     return (
         '<div class="ew-brand">ENERGYWATCH AI · CUADERNO DE CONSUMO</div>'
         '<div class="ew-title">¿Es <em>normal</em> el consumo<br>de tu casa?</div>'
-        '<div class="ew-sub">Prende los aparatos en cada habitación y mira cómo se ilumina la casa. '
-        'Comparamos tu consumo con más de 68.000 mediciones reales.</div>'
+        '<div class="ew-sub">Marca los aparatos encendidos en cada habitación. La casa se ilumina, el medidor suma '
+        'y el techo recibe un sello: habitual, revisar o alerta.</div>'
+        '<div class="ew-nav"><a href="#medir">Medir</a><a href="#lecturas">Lecturas</a>'
+        '<a href="#dia">Un día real</a><a href="#planos">Planos</a></div>'
     )
+
+
+def section(anchor, kicker, title, text=''):
+    body = f'<p>{escape(text)}</p>' if text else ''
+    return (
+        f'<div id="{anchor}" class="ew-section"><div class="ew-kicker">{escape(kicker)}</div>'
+        f'<h2>{escape(title)}</h2>{body}</div>'
+    )
+
+
+def meter_panel(meter_html, total_w):
+    return (
+        f'<div class="ew-meterbox">{meter_html}<div><div class="ew-kicker">Lectura en vivo</div>'
+        f'<div class="ew-live">{total_w:,.0f} <span>W</span></div>'
+        f'<div style="color:{MUTED};font-size:.9rem;margin-top:.3rem">promedio de la ventana de 30 minutos</div></div></div>'
+    )
+
+
+def room_head(name, watts, svg):
+    on = ' on' if watts > 0 else ''
+    return (
+        f'<div class="ew-roomhead"><span class="nm">{escape(name)}</span>'
+        f'<span class="w{on}">{watts:,.0f} W</span></div>{svg}'
+    )
+
+
+def glow_css(levels):
+    """Estilo dinámico: cada habitación brilla según su nivel (0 a 1)."""
+    rules = ''
+    for zone, level in levels.items():
+        if level <= 0:
+            continue
+        a1, a2 = 0.16 + 0.62 * level, 0.04 + 0.18 * level
+        rules += (
+            f'.st-key-room_{zone} {{ background-image: radial-gradient(ellipse at 50% 0%, '
+            f'rgba(245,193,75,{a1:.2f}) 0%, rgba(245,193,75,{a2:.2f}) 62%, rgba(245,193,75,0) 100%); }}'
+        )
+    return f'<style>{rules}</style>' if rules else ''
 
 
 def plate(svg, caption=''):
