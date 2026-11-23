@@ -149,3 +149,56 @@ def zones_from_watts(total_w, cocina_w, lavanderia_w, agua_aire_w):
     """Zonas de la casa a partir de los cuatro valores del modo «Ya conozco mis vatios»."""
     other = max(total_w - cocina_w - lavanderia_w - agua_aire_w, 0.0)
     return {'cocina': cocina_w, 'lavanderia': lavanderia_w, 'agua_aire': agua_aire_w, 'otros': other}
+
+
+def room_svg(zone, watts):
+    """Ilustración de una sola habitación (para la tarjeta de cada cuarto)."""
+    on = watts > 0
+    lamp = (
+        f'<path d="M125 0 v12" stroke="{INK}" stroke-width="2"/>'
+        f'<circle cx="125" cy="16" r="5" fill="{GLOW if on else PAPER}" stroke="{INK}" stroke-width="2"/>'
+    )
+    return f'<svg class="roomsvg" viewBox="0 0 250 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">{lamp}{_glyphs(zone, 0, 0, on)}</svg>'
+
+
+def roof_svg(nivel=None):
+    """Techo de la casa con chimenea; recibe el sello del veredicto."""
+    stamp = ''
+    if nivel in LEVEL_WORD:
+        col, word = LEVEL_COLOR[nivel], LEVEL_WORD[nivel]
+        w = 40 + 30 * len(word)
+        stamp = f"""
+<g transform="translate({500 - w / 2} 72) rotate(-4 {w / 2} 30)">
+  <rect width="{w}" height="62" rx="4" fill="{PAPER}" fill-opacity=".94" stroke="{col}" stroke-width="5"/>
+  <rect x="7" y="7" width="{w - 14}" height="48" fill="none" stroke="{col}" stroke-width="1.5"/>
+  <text x="{w / 2}" y="44" text-anchor="middle" class="hs-stamp" style="font-size:34px" fill="{col}">{word}</text>
+</g>"""
+    return f"""
+<svg class="roof" viewBox="0 0 1000 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Techo de la casa">
+<defs><pattern id="tiles2" width="16" height="11" patternUnits="userSpaceOnUse"><path d="M0 11 Q8 0 16 11" fill="none" stroke="{INK}" stroke-width="1.1" opacity=".5"/></pattern></defs>
+<rect x="740" y="14" width="40" height="92" fill="{PAPER}" stroke="{INK}" stroke-width="4"/>
+<path d="M-10 148 L500 8 L1010 148 Z" fill="url(#tiles2)" stroke="{INK}" stroke-width="4" stroke-linejoin="round"/>
+{stamp}
+</svg>"""
+
+
+def meter_svg(total_w):
+    """Medidor de pared con aguja giratoria y dígitos con el total en vatios."""
+    digits = f'{min(int(round(total_w)), 99999):05d}'
+    cells = ''.join(
+        f'<rect x="{18 + i * 23}" y="116" width="21" height="32" fill="{INK}"/>'
+        f'<text x="{28.5 + i * 23}" y="140" text-anchor="middle" style="font:500 24px \'DM Mono\',monospace;fill:{PAPER}">{d}</text>'
+        for i, d in enumerate(digits)
+    )
+    return f"""
+<svg class="meter" viewBox="0 0 150 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Medidor: {total_w:.0f} vatios">
+  <rect x="3" y="3" width="144" height="184" rx="14" fill="{PAPER}" stroke="{INK}" stroke-width="3"/>
+  <circle cx="75" cy="62" r="42" fill="#fff" stroke="{INK}" stroke-width="2.5"/>
+  <circle cx="75" cy="62" r="28" fill="none" stroke="{ACCENT}" stroke-width="2.5" stroke-dasharray="4 5"/>
+  <path d="M75 62 L75 30" stroke="{INK}" stroke-width="3.5" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" from="0 75 62" to="360 75 62" dur="7s" repeatCount="indefinite"/>
+  </path>
+  <circle cx="75" cy="62" r="4.5" fill="{INK}"/>
+  {cells}
+  <text x="75" y="171" text-anchor="middle" class="hs-lab" style="font-size:11px">VATIOS · 30 MIN</text>
+</svg>"""
