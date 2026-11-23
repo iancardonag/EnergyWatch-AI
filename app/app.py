@@ -23,6 +23,7 @@ from src.catalog import (
 )
 from src import database as db
 from src import ui
+from src.house import house_svg, zones_from_watts
 from src.seed_demo import seed
 
 st.set_page_config(page_title='EnergyWatch AI', page_icon=str(ROOT / 'app' / 'static' / 'icon.png'), layout='wide')
@@ -64,7 +65,7 @@ def check_consumption(total_w, cocina_w, lavanderia_w, agua_aire_w, price, etiqu
     """Evalúa el consumo con el modelo, muestra el resultado y lo guarda en el historial."""
     if total_w <= 0:
         st.error('El consumo total debe ser mayor que 0 W. Marca al menos un aparato o escribe un valor.')
-        return
+        return None
     if zones_exceed_total(total_w, cocina_w, lavanderia_w, agua_aire_w):
         st.warning('La suma de cocina, lavandería y ducha/aire supera el total de la casa. Revisa los valores.')
     try:
@@ -90,8 +91,10 @@ def check_consumption(total_w, cocina_w, lavanderia_w, agua_aire_w, price, etiqu
                 show_figure(ui.density_map(load_replay(), (values['Global_active_power'], values['Sub_metering_3'])))
         db.save_measurement(values, result, nivel, mensaje, etiqueta)
         st.caption('Consulta guardada en tu historial. Es orientativa: no confirma fallas ni riesgos eléctricos.')
+        return nivel
     except Exception as exc:
         st.error(f'No fue posible revisar el consumo: {exc}')
+        return None
 
 
 if not (ROOT / 'models' / 'modelo.joblib').exists():
@@ -109,20 +112,24 @@ tabs = st.tabs(['Inicio', 'Revisar mi consumo', 'Mi historial', 'Demostración',
 
 # ---------------------------------------------------------------- Inicio
 with tabs[0]:
-    cols = st.columns(3, gap='large')
+    art, text = st.columns([6, 5], gap='large')
+    resting = {'cocina': 0, 'lavanderia': 175, 'agua_aire': 0, 'otros': 120}
+    art.markdown(
+        ui.plate(house_svg(resting, nivel='normal'), 'Casa en reposo · nevera y luces: lectura habitual'),
+        unsafe_allow_html=True,
+    )
     steps = [
-        ('01', 'Cuéntanos qué usas', 'Marca tus electrodomésticos y cuántos minutos estuvieron encendidos, o escribe tus vatios.'),
-        ('02', 'Recibe un veredicto', 'Te decimos si ese consumo es habitual, cuánto costaría por día y qué conviene revisar.'),
-        ('03', 'Sigue tu evolución', 'Cada consulta queda en tu historial para comparar cómo cambia tu consumo.'),
+        ('1.', 'Cuéntanos qué usas', 'Marca tus electrodomésticos en cada habitación o escribe tus vatios.'),
+        ('2.', 'Mira cómo se ilumina la casa', 'Cada habitación brilla según lo que consume, y el medidor marca el total.'),
+        ('3.', 'Recibe el sello', 'Habitual, revisar o alerta, con el costo por día y consejos para ahorrar.'),
     ]
-    for col, step in zip(cols, steps):
-        col.markdown(ui.steps([step]), unsafe_allow_html=True)
-    st.write('')
+    text.markdown(ui.steps(steps), unsafe_allow_html=True)
     history = db.list_measurements()
-    m1, m2, m3 = st.columns(3)
-    m1.metric('Consultas guardadas', len(history))
-    m2.metric('Con alerta o revisión', int((history['nivel'] != 'normal').sum()) if len(history) else 0)
-    m3.metric('Consumo promedio', f"{history['Global_active_power'].mean() * 1000:,.0f} W" if len(history) else '—')
+    m1, m2, m3 = text.columns(3)
+    m1.metric('Consultas', len(history))
+    m2.metric('Con alerta', int((history['nivel'] != 'normal').sum()) if len(history) else 0)
+    m3.metric('Promedio', f"{history['Global_active_power'].mean() * 1000:,.0f} W" if len(history) else '—')
+    st.write('')
     st.markdown('#### Qué es un consumo típico en un hogar colombiano')
     st.dataframe(
         pd.DataFrame([{'Escenario': n, 'Desde (kW)': lo, 'Hasta (kW)': hi, 'Ejemplo': d} for n, lo, hi, d in SCENARIOS]),
@@ -136,109 +143,129 @@ with tabs[0]:
 
 # ---------------------------------------------------------------- Revisar
 with tabs[1]:
-    st.markdown('<div class="ew-kicker">Paso 1 · Ingreso de datos</div>', unsafe_allow_html=True)
-    st.write('El análisis usa el consumo **promedio de una ventana de 30 minutos**.')
-    mode = st.radio('¿Cómo quieres ingresar tu consumo?', [MODE_APPLIANCES, MODE_WATTS], horizontal=True)
-    left, right = st.columns([2, 1])
-    etiqueta = left.text_input('Nombre de esta consulta (opcional)', placeholder='Ej: Domingo con la lavadora')
-    price = right.number_input(
-        'Precio de tu kWh (COP)',
-        0.0,
-        100000.0,
-        step=50.0,
-        value=DEFAULT_PRICE_COP,
-        help='Valor ilustrativo; cámbialo por el de tu factura. Con 0 no se calcula el costo.',
-    )
-
-    if mode == MODE_APPLIANCES:
-        st.write(
-            '**Marca** los aparatos que usaste en los últimos 30 minutos, y elige **cuántos** son y '
-            '**cuántos minutos** estuvieron encendidos.'
+    house_col, form_col = st.columns([5, 6], gap='large')
+    house_slot = house_col.empty()
+    house_zones = {'cocina': 0, 'lavanderia': 0, 'agua_aire': 0, 'otros': 0}
+    house_total, house_nivel = 0.0, None
+    with form_col:
+        st.markdown('<div class="ew-kicker">Paso 1 · Ingreso de datos</div>', unsafe_allow_html=True)
+        st.write('El análisis usa el consumo **promedio de una ventana de 30 minutos**.')
+        mode = st.radio('¿Cómo quieres ingresar tu consumo?', [MODE_APPLIANCES, MODE_WATTS], horizontal=True)
+        left, right = st.columns([2, 1])
+        etiqueta = left.text_input('Nombre de esta consulta (opcional)', placeholder='Ej: Domingo con la lavadora')
+        price = right.number_input(
+            'Precio de tu kWh (COP)',
+            0.0,
+            100000.0,
+            step=50.0,
+            value=DEFAULT_PRICE_COP,
+            help='Valor ilustrativo; cámbialo por el de tu factura. Con 0 no se calcula el costo.',
         )
-        catalog = load_appliances()
-        rows = []
-        for zone, label in ZONE_LABELS.items():
-            with st.expander(label, expanded=zone != 'otros'):
-                for _, item in catalog[catalog['zona'] == zone].iterrows():
-                    name = item['aparato']
-                    col_name, col_qty, col_min = st.columns([3, 1, 1])
-                    used = col_name.checkbox(f"{name} ({item['potencia_tipica_w']:.0f} W)", key=f'use_{name}')
-                    qty = col_qty.number_input(
-                        'Cantidad', 1, 10, 1, key=f'qty_{name}', disabled=not used, label_visibility='collapsed'
-                    )
-                    mins = col_min.number_input(
-                        'Minutos',
-                        1,
-                        WINDOW_MINUTES,
-                        WINDOW_MINUTES,
-                        step=1,
-                        key=f'min_{name}',
-                        disabled=not used,
-                        label_visibility='collapsed',
-                        help=f'Minutos encendido de los últimos {WINDOW_MINUTES}',
-                    )
-                    rows.append(
-                        {
-                            'potencia_tipica_w': item['potencia_tipica_w'],
-                            'zona': zone,
-                            'cantidad': qty if used else 0,
-                            'minutos': mins,
-                        }
-                    )
-        sums = totals_from_appliances(pd.DataFrame(rows))
-        st.metric('Consumo promedio estimado', f"{sums['total_w']:,.0f} W")
-        if st.button('Revisar mi consumo', type='primary', key='go_appliances'):
-            check_consumption(sums['total_w'], sums['cocina'], sums['lavanderia'], sums['agua_aire'], price, etiqueta)
-    else:
-        defaults = {'f_total': 1200.0, 'f_cocina': 130.0, 'f_lav': 0.0, 'f_cal': 600.0}
-        for key, val in defaults.items():
-            st.session_state.setdefault(key, val)
-        if REPLAY.exists():
-            examples = load_replay()
-            options = {'—': None}
-            regular = examples.loc[examples['cluster'] >= 0]
-            unusual = examples.loc[examples['cluster'] == -1]
-            high = examples.loc[examples['Global_active_power'] > bundle['thresholds']['power_p95']]
-            if len(regular):
-                options['Ejemplo: consumo normal'] = regular.iloc[0]
-            if len(high):
-                options['Ejemplo: consumo alto'] = high.iloc[0]
-            if len(unusual):
-                options['Ejemplo: combinación rara'] = unusual.iloc[0]
-            if len(options) > 1:
-                pick = st.selectbox('¿Quieres probar con un ejemplo real?', list(options))
-                if st.button('Usar este ejemplo') and options[pick] is not None:
-                    s = to_simple(options[pick])
-                    st.session_state.update(
-                        f_total=round(s['total_w']),
-                        f_cocina=round(s['cocina_w']),
-                        f_lav=round(s['lavanderia_w']),
-                        f_cal=round(s['calentador_w']),
-                    )
-                    st.rerun()
-        with st.form('consulta'):
-            total_w = st.number_input('Consumo total de la casa (W)', 0.0, 50000.0, step=50.0, key='f_total')
-            a, b, c = st.columns(3)
-            cocina_w = a.number_input(
-                'Cocina (W)',
-                0.0,
-                6000.0,
-                step=10.0,
-                key='f_cocina',
-                help='Horno, microondas, airfryer… (máximo típico 6.000 W)',
+
+        if mode == MODE_APPLIANCES:
+            st.write(
+                '**Marca** los aparatos que usaste en los últimos 30 minutos, y elige **cuántos** son y '
+                '**cuántos minutos** estuvieron encendidos.'
             )
-            lav_w = b.number_input('Lavandería, nevera y luces (W)', 0.0, 6000.0, step=10.0, key='f_lav')
-            cal_w = c.number_input(
-                'Ducha, calentador o aire (W)',
-                0.0,
-                11000.0,
-                step=10.0,
-                key='f_cal',
-                help='Máximo típico 11.000 W si coinciden dos aparatos',
-            )
-            submitted = st.form_submit_button('Revisar mi consumo', type='primary')
-        if submitted:
-            check_consumption(total_w, cocina_w, lav_w, cal_w, price, etiqueta)
+            catalog = load_appliances()
+            rows = []
+            for zone, label in ZONE_LABELS.items():
+                with st.expander(label, expanded=zone != 'otros'):
+                    for _, item in catalog[catalog['zona'] == zone].iterrows():
+                        name = item['aparato']
+                        col_name, col_qty, col_min = st.columns([3, 1, 1])
+                        used = col_name.checkbox(f"{name} ({item['potencia_tipica_w']:.0f} W)", key=f'use_{name}')
+                        qty = col_qty.number_input(
+                            'Cantidad', 1, 10, 1, key=f'qty_{name}', disabled=not used, label_visibility='collapsed'
+                        )
+                        mins = col_min.number_input(
+                            'Minutos',
+                            1,
+                            WINDOW_MINUTES,
+                            WINDOW_MINUTES,
+                            step=1,
+                            key=f'min_{name}',
+                            disabled=not used,
+                            label_visibility='collapsed',
+                            help=f'Minutos encendido de los últimos {WINDOW_MINUTES}',
+                        )
+                        rows.append(
+                            {
+                                'potencia_tipica_w': item['potencia_tipica_w'],
+                                'zona': zone,
+                                'cantidad': qty if used else 0,
+                                'minutos': mins,
+                            }
+                        )
+            sums = totals_from_appliances(pd.DataFrame(rows))
+            house_zones = {z: sums[z] for z in house_zones}
+            house_total = sums['total_w']
+            st.metric('Consumo promedio estimado', f"{sums['total_w']:,.0f} W")
+            if st.button('Revisar mi consumo', type='primary', key='go_appliances'):
+                house_nivel = check_consumption(
+                    sums['total_w'], sums['cocina'], sums['lavanderia'], sums['agua_aire'], price, etiqueta
+                )
+        else:
+            defaults = {'f_total': 1200.0, 'f_cocina': 130.0, 'f_lav': 0.0, 'f_cal': 600.0}
+            for key, val in defaults.items():
+                st.session_state.setdefault(key, val)
+            if REPLAY.exists():
+                examples = load_replay()
+                options = {'—': None}
+                regular = examples.loc[examples['cluster'] >= 0]
+                unusual = examples.loc[examples['cluster'] == -1]
+                high = examples.loc[examples['Global_active_power'] > bundle['thresholds']['power_p95']]
+                if len(regular):
+                    options['Ejemplo: consumo normal'] = regular.iloc[0]
+                if len(high):
+                    options['Ejemplo: consumo alto'] = high.iloc[0]
+                if len(unusual):
+                    options['Ejemplo: combinación rara'] = unusual.iloc[0]
+                if len(options) > 1:
+                    pick = st.selectbox('¿Quieres probar con un ejemplo real?', list(options))
+                    if st.button('Usar este ejemplo') and options[pick] is not None:
+                        s = to_simple(options[pick])
+                        st.session_state.update(
+                            f_total=round(s['total_w']),
+                            f_cocina=round(s['cocina_w']),
+                            f_lav=round(s['lavanderia_w']),
+                            f_cal=round(s['calentador_w']),
+                        )
+                        st.rerun()
+            with st.form('consulta'):
+                total_w = st.number_input('Consumo total de la casa (W)', 0.0, 50000.0, step=50.0, key='f_total')
+                a, b, c = st.columns(3)
+                cocina_w = a.number_input(
+                    'Cocina (W)',
+                    0.0,
+                    6000.0,
+                    step=10.0,
+                    key='f_cocina',
+                    help='Horno, microondas, airfryer… (máximo típico 6.000 W)',
+                )
+                lav_w = b.number_input('Lavandería, nevera y luces (W)', 0.0, 6000.0, step=10.0, key='f_lav')
+                cal_w = c.number_input(
+                    'Ducha, calentador o aire (W)',
+                    0.0,
+                    11000.0,
+                    step=10.0,
+                    key='f_cal',
+                    help='Máximo típico 11.000 W si coinciden dos aparatos',
+                )
+                submitted = st.form_submit_button('Revisar mi consumo', type='primary')
+            house_total = total_w
+            house_zones = zones_from_watts(total_w, cocina_w, lav_w, cal_w)
+            if submitted:
+                house_nivel = check_consumption(total_w, cocina_w, lav_w, cal_w, price, etiqueta)
+
+
+    house_slot.markdown(
+        ui.plate(
+            house_svg(house_zones, house_total, house_nivel),
+            'Tu casa · se ilumina con lo que marcas' if house_nivel is None else 'Tu casa · lectura de esta consulta',
+        ),
+        unsafe_allow_html=True,
+    )
 
 # ---------------------------------------------------------------- Historial
 with tabs[2]:
