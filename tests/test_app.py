@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 from streamlit.testing.v1 import AppTest
 from src import database as db
+from src.catalog import load_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.skipif(not (ROOT / 'models' / 'modelo.joblib').exists(), reason='modelo no entrenado')
@@ -15,26 +16,34 @@ def app(tmp_path, monkeypatch):
     return AppTest.from_file(str(ROOT / 'app' / 'app.py'), default_timeout=90).run()
 
 
+def _zone_of(appliance):
+    catalog = load_catalog()
+    return catalog.loc[catalog['aparato'] == appliance, 'zona'].iloc[0]
+
+
 def test_app_loads_without_errors(app):
     assert not app.exception
-    assert len(app.tabs) == 5
+    assert {b.key for b in app.button} >= {'go_top', 'go_bottom'}
 
 
 def test_direct_watts_flow_saves_history(app):
     app.radio[0].set_value('Ya conozco mis vatios').run()
-    [b for b in app.button if b.label == 'Revisar mi consumo'][0].click().run()
+    app.button(key='go_top').click().run()
     assert not app.exception and not app.error
-    assert len(db.list_measurements()) == 1
+    saved = db.list_measurements()
+    assert len(saved) == 1
+    # 130 (cocina) + 0 (lavandería) + 600 (ducha o aire) + 470 (sala): 1200 W por defecto
+    assert abs(saved.iloc[0]['Global_active_power'] - 1.2) < 1e-9
 
 
 def test_appliance_picker_flow(app):
-    app.checkbox(key='use_Ducha eléctrica').check().run()
-    app.number_input(key='min_Ducha eléctrica').set_value(10).run()
-    app.checkbox(key='use_Televisor').check().run()
+    shower, tv = 'Ducha eléctrica', 'Televisor'
+    app.session_state[f'pick_{_zone_of(shower)}'] = [shower]
+    app.session_state[f'pick_{_zone_of(tv)}'] = [tv]
+    app.run()
+    app.number_input(key=f'min_{shower}').set_value(10).run()
     # 4500 W x 10/30 + 100 W x 30/30 = 1600 W
-    estimated = [m for m in app.metric if m.label == 'Consumo promedio estimado'][0]
-    assert estimated.value == '1,600 W'
-    [b for b in app.button if b.label == 'Revisar mi consumo'][0].click().run()
+    app.button(key='go_top').click().run()
     assert not app.exception and not app.error
     saved = db.list_measurements()
     assert len(saved) == 1 and abs(saved.iloc[0]['Global_active_power'] - 1.6) < 1e-9
@@ -42,7 +51,7 @@ def test_appliance_picker_flow(app):
 
 def test_zero_consumption_is_rejected(app):
     app.radio[0].set_value('Ya conozco mis vatios').run()
-    # Los valores de un formulario solo viajan al pulsar enviar: set_value y click en la misma ejecución.
-    app.number_input(key='f_total').set_value(0.0)
-    [b for b in app.button if b.label == 'Revisar mi consumo'][0].click().run()
+    for key in ('f_cocina', 'f_lav', 'f_cal', 'f_otros'):
+        app.number_input(key=key).set_value(0.0)
+    app.button(key='go_top').click().run()
     assert app.error and db.list_measurements().empty
