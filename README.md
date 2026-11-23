@@ -10,7 +10,7 @@ No es un sistema de seguridad ni diagnostica fallas eléctricas: una combinació
 
 ## Demostración
 
-🔗 **Aplicación desplegada:** _[pegar aquí la URL pública de Streamlit Community Cloud]_
+🔗 **Aplicación desplegada:** [https://energywatch-ai-lvzd3ui2qhgaju2wxkggve.streamlit.app/](https://energywatch-ai-lvzd3ui2qhgaju2wxkggve.streamlit.app/)
 
 ## Algoritmo utilizado
 
