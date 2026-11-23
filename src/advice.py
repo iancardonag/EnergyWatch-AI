@@ -1,9 +1,9 @@
 """Convierte el resultado técnico del modelo en un mensaje simple para el usuario."""
 
 NIVELES = {
-    'normal': ('🟢', 'Todo en orden'),
-    'atencion': ('🟡', 'Vale la pena revisar'),
-    'alto': ('🔴', 'Consumo alto y poco habitual'),
+    'normal': ('Habitual', 'Todo en orden'),
+    'atencion': ('Revisar', 'Vale la pena revisar'),
+    'alto': ('Alerta', 'Consumo alto y poco habitual'),
 }
 
 

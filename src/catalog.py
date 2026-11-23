@@ -19,10 +19,10 @@ SCENARIOS = [
 ]
 
 ZONE_LABELS = {
-    'cocina': '🍳 Cocina',
-    'lavanderia': '🧺 Lavandería, nevera y luces',
-    'agua_aire': '🔥 Ducha / calentador / aire acondicionado',
-    'otros': '🔌 Otros aparatos',
+    'cocina': 'Cocina',
+    'lavanderia': 'Lavandería, nevera y luces',
+    'agua_aire': 'Ducha, calentador y aire acondicionado',
+    'otros': 'Otros aparatos',
 }
 
 
