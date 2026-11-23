@@ -82,7 +82,8 @@ Si se ingresan valores inválidos (consumo total en 0, minutos fuera de 0–30, 
 ## Estructura del proyecto
 
 ```
-app/app.py                    Interfaz Streamlit (5 pestañas)
+app/app.py                    Interfaz Streamlit de una sola página: casa en corte, historial, día real y planos
+src/house.py                  Dibujo SVG de la casa, el techo con sello y el medidor
 src/ui.py                     Estilos, tarjeta de resultado y gráficos
 src/seed_demo.py              Historial de ejemplo con ventanas reales (python -m src.seed_demo)
 src/preprocessing.py          Descarga, ventanas de 30 min y transformación
