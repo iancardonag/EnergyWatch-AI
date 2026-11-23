@@ -83,6 +83,8 @@ Si se ingresan valores inválidos (consumo total en 0, minutos fuera de 0–30, 
 
 ```
 app/app.py                    Interfaz Streamlit (5 pestañas)
+src/ui.py                     Estilos, tarjeta de resultado y gráficos
+src/seed_demo.py              Historial de ejemplo con ventanas reales (python -m src.seed_demo)
 src/preprocessing.py          Descarga, ventanas de 30 min y transformación
 src/train.py                  Búsqueda de hiperparámetros, evaluación y serialización
 src/predict.py                Asignación de nuevas mediciones a núcleos DBSCAN
@@ -95,7 +97,7 @@ models/                       modelo.joblib y metadata.json
 data/raw, data/processed      Datos originales (no versionados) y replay de prueba
 data/reference/               Excel y CSV de electrodomésticos de Colombia
 tests/                        Pruebas con pytest (modelo, base de datos, catálogo, interfaz)
-docs/                         Arquitectura, guía de entrega, rúbrica y presentación
+docs/                         Arquitectura, guía de entrega, capturas y presentacion.pdf
 ```
 
 ## Despliegue

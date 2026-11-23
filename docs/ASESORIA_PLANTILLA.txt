@@ -19,7 +19,7 @@ Estado de la Aplicación:
 - Estado: Funcionando localmente (capturas adjuntas en el repositorio: docs/capturas/)
 - Funciones: elegir electrodomésticos colombianos o ingresar vatios, semáforo con explicación, costo en COP,
   consejos, historial en SQLite con descarga CSV, demostración con datos reales
-- Pruebas automáticas: 13 pruebas con pytest
+- Pruebas automáticas: 15 pruebas con pytest
 - Falta: desplegar en la nube y completar presentación
 
 Despliegue Planificado:

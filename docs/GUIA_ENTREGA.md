@@ -1,6 +1,6 @@
 # Guía de entrega — Actividad 3 (de local a la nube)
 
-Estado actual: modelo entrenado, notebook ejecutado, app local funcionando, 13 pruebas pasando. **Falta lo que solo ustedes pueden hacer:** GitHub, nube, capturas, presentación y datos de autores.
+Estado actual: modelo entrenado, notebook ejecutado, app local funcionando, 15 pruebas pasando. **Falta lo que solo ustedes pueden hacer:** GitHub, nube, capturas, presentación y datos de autores.
 
 ## 1. Crear el repositorio y subir el proyecto (Entrega 1: 2 pts + Entrega 2: 6 pts)
 
