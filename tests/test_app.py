@@ -21,7 +21,7 @@ def test_app_loads_without_errors(app):
 
 
 def test_direct_watts_flow_saves_history(app):
-    app.radio[0].set_value('⚡ Ya conozco mis vatios').run()
+    app.radio[0].set_value('Ya conozco mis vatios').run()
     [b for b in app.button if b.label == 'Revisar mi consumo'][0].click().run()
     assert not app.exception and not app.error
     assert len(db.list_measurements()) == 1
@@ -41,7 +41,7 @@ def test_appliance_picker_flow(app):
 
 
 def test_zero_consumption_is_rejected(app):
-    app.radio[0].set_value('⚡ Ya conozco mis vatios').run()
+    app.radio[0].set_value('Ya conozco mis vatios').run()
     # Los valores de un formulario solo viajan al pulsar enviar: set_value y click en la misma ejecución.
     app.number_input(key='f_total').set_value(0.0)
     [b for b in app.button if b.label == 'Revisar mi consumo'][0].click().run()
