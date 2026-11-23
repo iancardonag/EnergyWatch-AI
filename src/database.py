@@ -38,11 +38,11 @@ def init_db(path=None):
             {', '.join(f'{f} REAL NOT NULL' for f in FEATURES)})''')
 
 
-def save_measurement(values, result, nivel, mensaje, etiqueta='', path=None):
+def save_measurement(values, result, nivel, mensaje, etiqueta='', path=None, creado=None):
     """Guarda una consulta. `values` es dict con FEATURES; `result` es la fila de analyze_records."""
     init_db(path)
     row = {
-        'creado': datetime.now().isoformat(timespec='seconds'),
+        'creado': (creado or datetime.now()).isoformat(timespec='seconds'),
         'etiqueta': etiqueta.strip()[:80],
         'nivel': nivel,
         'mensaje': mensaje,
